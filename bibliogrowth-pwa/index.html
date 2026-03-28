@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Bibliogrowth</title>
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bibliogrowth">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#1a0f05">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Zen+Kaku+Gothic+New:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --wd:#3b2510;--wm:#5c3a1e;--wl:#8b5e3c;--wp:#c4956a;
+  --p:#f5edd8;--p2:#ede0c4;--p3:#ddd0b0;
+  --ink:#1c1208;--ink2:#3d2b14;--ink3:#7a6245;
+  --gold:#c8992a;--g2:#e8c060;--g3:#f5e0a0;
+  --bg:#1a0f05;--bg2:#2d1508;--bg3:#3b1e08;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(200,153,42,.18) 0%,transparent 70%),radial-gradient(ellipse 30% 60% at 5% 50%,rgba(120,60,20,.22) 0%,transparent 60%),radial-gradient(ellipse 30% 60% at 95% 50%,rgba(120,60,20,.22) 0%,transparent 60%);pointer-events:none;z-index:0;}
+
+/* HEADER */
+.hdr{background:linear-gradient(180deg,#2a1505,#3b1e08 60%,#2a1505);border-bottom:2px solid var(--gold);padding:0 18px;padding-top:env(safe-area-inset-top);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;height:calc(54px + env(safe-area-inset-top));box-shadow:0 4px 20px rgba(0,0,0,.6);}
+.logo{font-family:'Shippori Mincho',serif;font-size:18px;font-weight:700;color:var(--g2);letter-spacing:.1em;text-shadow:0 0 14px rgba(200,153,42,.4);}
+.logo-s{font-size:10px;color:var(--wp);letter-spacing:.18em;display:block;margin-top:-2px;}
+.tnav-wrap{display:flex;gap:1px;}
+.tnav{background:none;border:none;color:var(--p3);font-family:inherit;font-size:11px;padding:5px 11px;border-radius:3px;cursor:pointer;transition:all .2s;position:relative;letter-spacing:.04em;}
+.tnav:hover,.tnav.on{background:rgba(200,153,42,.15);color:var(--g2);}
+.tnav.on::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;background:var(--gold);border-radius:1px;}
+
+/* LAYOUT */
+.main{max-width:860px;margin:0 auto;padding:18px 13px;padding-bottom:calc(88px + env(safe-area-inset-bottom));position:relative;z-index:1;}
+.pg{display:none;animation:fi .28s ease;}
+.pg.on{display:block;}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* CARDS */
+.card{background:linear-gradient(155deg,var(--p) 0%,var(--p2) 100%);border-radius:4px;border:1px solid var(--p3);border-top:3px solid var(--gold);padding:16px 18px;margin-bottom:13px;box-shadow:0 6px 26px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.4);position:relative;}
+.ct{font-family:'Shippori Mincho',serif;font-size:15px;font-weight:600;color:var(--wd);margin-bottom:11px;padding-bottom:8px;border-bottom:1px solid var(--p3);display:flex;align-items:center;gap:7px;}
+.dcard{background:linear-gradient(155deg,var(--bg2),#1a0a02);border:1px solid rgba(200,153,42,.28);border-radius:4px;padding:16px 18px;margin-bottom:13px;box-shadow:0 6px 26px rgba(0,0,0,.5);}
+.dct{font-family:'Shippori Mincho',serif;font-size:15px;font-weight:600;color:var(--g2);margin-bottom:11px;padding-bottom:8px;border-bottom:1px solid rgba(200,153,42,.2);display:flex;align-items:center;gap:7px;}
+
+/* CHARACTER */
+.char-wrap{background:linear-gradient(155deg,#150803,var(--bg2) 50%,#150803);border:1px solid var(--gold);border-radius:6px;padding:18px 16px;margin-bottom:13px;display:flex;align-items:center;gap:18px;box-shadow:0 10px 34px rgba(0,0,0,.7),inset 0 1px 0 rgba(200,153,42,.18);position:relative;overflow:hidden;}
+.char-wrap::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 80% at 18% 50%,rgba(200,153,42,.09) 0%,transparent 70%);}
+@keyframes flk{0%,100%{opacity:.55}50%{opacity:.88}}
+.char-wrap::after{content:'🕯';position:absolute;right:16px;top:13px;font-size:17px;animation:flk 2.2s ease-in-out infinite;}
+.char-fig{width:96px;height:96px;flex-shrink:0;z-index:1;}
+.char-info{flex:1;z-index:1;}
+.char-name{font-family:'Shippori Mincho',serif;font-size:16px;font-weight:700;color:var(--g2);text-shadow:0 0 10px rgba(200,153,42,.45);margin-bottom:1px;}
+.char-lv{font-size:9px;color:var(--wp);letter-spacing:.15em;margin-bottom:9px;}
+.exp-row{display:flex;justify-content:space-between;font-size:9px;color:var(--wp);margin-bottom:3px;}
+.exp-track{height:6px;background:rgba(0,0,0,.4);border-radius:3px;border:1px solid rgba(200,153,42,.25);overflow:hidden;}
+.exp-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--g2),var(--g3));border-radius:3px;transition:width 1.2s cubic-bezier(.4,0,.2,1);box-shadow:0 0 6px rgba(200,153,42,.55);}
+.st-row{display:flex;gap:12px;margin-top:8px;}
+.st{text-align:center;}
+.st-n{font-family:'Shippori Mincho',serif;font-size:17px;font-weight:700;color:var(--g2);display:block;}
+.st-l{font-size:9px;color:var(--wp);letter-spacing:.08em;margin-top:1px;}
+
+/* EVENING BANNER */
+.ev-ban{background:linear-gradient(135deg,#0d0805,var(--bg2) 50%,#0d0805);border:1px solid rgba(200,153,42,.38);border-radius:6px;padding:14px 16px;margin-bottom:13px;box-shadow:0 6px 26px rgba(0,0,0,.55);position:relative;overflow:hidden;}
+.ev-ban::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 50% 50%,rgba(200,100,20,.1) 0%,transparent 70%);}
+@keyframes flt{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.ev-moon{position:absolute;right:14px;top:11px;font-size:24px;opacity:.7;animation:flt 3.5s ease-in-out infinite;}
+.ev-t{font-family:'Shippori Mincho',serif;font-size:14px;font-weight:600;color:var(--g2);margin-bottom:3px;position:relative;z-index:1;}
+.ev-s{font-size:11px;color:var(--wp);margin-bottom:10px;line-height:1.6;position:relative;z-index:1;}
+
+/* SHELF */
+.shelf-wrap{background:linear-gradient(180deg,#2a1505,var(--bg3));border-radius:6px;border:1px solid rgba(200,153,42,.28);padding:14px 12px;margin-bottom:13px;box-shadow:0 6px 26px rgba(0,0,0,.5);}
+.shelf-t{font-family:'Shippori Mincho',serif;font-size:13px;font-weight:600;color:var(--g2);margin-bottom:11px;display:flex;align-items:center;gap:6px;}
+.shelf-hint{font-size:10px;color:var(--wp);margin-left:4px;}
+.shelf{background:linear-gradient(180deg,#4a2810,#5c3418 40%,#3b2010);border-radius:3px;padding:9px 7px 13px;border-top:4px solid #7a4a28;border-bottom:5px solid #250e02;box-shadow:inset 0 2px 4px rgba(0,0,0,.3),0 4px 10px rgba(0,0,0,.4);display:flex;gap:4px;align-items:flex-end;min-height:96px;flex-wrap:wrap;position:relative;}
+.shelf::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 56px,rgba(0,0,0,.04) 56px,rgba(0,0,0,.04) 57px);pointer-events:none;}
+.bsp{width:29px;border-radius:2px 4px 4px 2px;cursor:pointer;transition:transform .22s ease,box-shadow .22s ease;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 2px;box-shadow:3px 0 5px rgba(0,0,0,.5),inset -2px 0 3px rgba(0,0,0,.2);overflow:hidden;position:relative;}
+.bsp:hover{transform:translateY(-7px) scale(1.06);box-shadow:3px 4px 13px rgba(0,0,0,.7);z-index:10;}
+.bsp::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:rgba(0,0,0,.22);}
+.bsp::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.07) 0%,transparent 40%,rgba(0,0,0,.1) 100%);}
+.bsp.reading{outline:2px solid var(--g2);outline-offset:1px;}
+.btxt{writing-mode:vertical-rl;font-family:'Shippori Mincho',serif;font-size:9px;font-weight:600;color:rgba(255,255,255,.9);text-shadow:0 1px 2px rgba(0,0,0,.5);letter-spacing:.04em;max-height:70px;overflow:hidden;position:relative;z-index:1;}
+.bstars{margin-top:3px;font-size:6px;color:rgba(255,220,80,.9);position:relative;z-index:1;}
+.bslot{width:29px;height:72px;border:1px dashed rgba(255,255,255,.1);border-radius:2px;opacity:.3;}
+
+/* BOOK DETAIL */
+.bdet{background:linear-gradient(155deg,var(--p),var(--p2));border-radius:4px;border:1px solid var(--p3);border-left:4px solid var(--gold);padding:14px 16px;margin-bottom:11px;display:none;animation:fi .25s ease;box-shadow:0 6px 18px rgba(0,0,0,.4);}
+.bdet.on{display:block;}
+
+/* BADGES */
+.badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500;}
+.b-reading{background:#fff8e1;color:#7a5500;border:1px solid #f0c040;}
+.b-done{background:#e8f5e3;color:#2d5a27;border:1px solid #7ab870;}
+
+/* FORMS */
+.lbl{display:block;font-size:11px;color:var(--ink3);margin-bottom:4px;margin-top:11px;}
+.inp,.ta{width:100%;border:1px solid var(--p3);border-radius:3px;padding:8px 11px;font-family:inherit;font-size:14px;color:var(--ink);background:rgba(255,255,255,.7);transition:border-color .2s,box-shadow .2s;resize:vertical;}
+.inp:focus,.ta:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(200,153,42,.14);background:rgba(255,255,255,.95);}
+.star-row{display:inline-flex;gap:2px;}
+.star-b{background:none;border:none;cursor:pointer;font-size:22px;color:var(--p3);transition:color .14s,transform .14s;padding:1px;line-height:1;}
+.star-b.on{color:var(--gold);}
+.star-b:hover{transform:scale(1.18);}
+.wtags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px;}
+.wtag{padding:3px 10px;border-radius:20px;font-size:11px;cursor:pointer;border:1px solid var(--p3);color:var(--ink3);background:rgba(255,255,255,.5);transition:all .18s;}
+.wtag.on{background:var(--gold);color:var(--wd);border-color:var(--gold);font-weight:500;}
+.mood-row{display:flex;gap:7px;flex-wrap:wrap;}
+.mood-b{background:none;border:1px solid var(--p3);border-radius:8px;padding:5px 11px;cursor:pointer;font-size:17px;transition:all .18s;}
+.mood-b.on{border-color:var(--gold);background:rgba(200,153,42,.1);transform:scale(1.1);}
+
+/* BUTTONS */
+.btn{padding:9px 18px;border-radius:3px;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:500;transition:all .18s;letter-spacing:.04em;}
+.btn-w{background:linear-gradient(180deg,var(--wm),var(--wd));color:var(--g2);border:1px solid var(--wl);box-shadow:0 2px 7px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.1);}
+.btn-w:hover{background:linear-gradient(180deg,var(--wl),var(--wm));transform:translateY(-1px);}
+.btn-g{background:linear-gradient(180deg,var(--g2),var(--gold));color:var(--wd);font-weight:700;border:1px solid var(--gold);box-shadow:0 2px 10px rgba(200,153,42,.38);}
+.btn-g:hover{background:linear-gradient(180deg,var(--g3),var(--g2));transform:translateY(-1px);}
+.btn-sm{padding:5px 11px;font-size:11px;}
+.btn-ghost{background:none;border:1px solid rgba(200,153,42,.3);color:var(--g2);padding:6px 14px;border-radius:3px;cursor:pointer;font-family:inherit;font-size:12px;transition:all .18s;}
+.btn-ghost:hover{background:rgba(200,153,42,.1);}
+
+/* CHAT */
+.chat{min-height:130px;max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:2px 0 9px;scrollbar-width:thin;scrollbar-color:var(--p3) transparent;}
+.bub{max-width:88%;padding:8px 12px;font-size:13px;line-height:1.7;border-radius:4px;}
+.bub.ai{background:rgba(0,0,0,.06);color:var(--ink2);border-left:3px solid var(--gold);align-self:flex-start;}
+.bub.user{background:linear-gradient(135deg,var(--wm),var(--wd));color:var(--g3);align-self:flex-end;}
+.tdots{display:flex;gap:4px;padding:3px;}
+.td{width:6px;height:6px;border-radius:50%;background:var(--wp);animation:bou 1.2s ease infinite;}
+.td:nth-child(2){animation-delay:.2s}.td:nth-child(3){animation-delay:.4s}
+@keyframes bou{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+.chat-row{display:flex;gap:6px;margin-top:9px;}
+.chat-row .inp{flex:1;margin-top:0;}
+
+/* ACTIONS */
+.ait{display:flex;align-items:flex-start;gap:9px;padding:9px 12px;border-radius:4px;background:rgba(0,0,0,.04);margin-bottom:6px;border:1px solid var(--p3);transition:all .18s;cursor:pointer;}
+.ait.done{opacity:.4;}
+.ait.done .ab{text-decoration:line-through;}
+.ait.over{border-color:rgba(180,60,30,.28);background:rgba(180,60,30,.04);}
+.ach{width:20px;height:20px;border-radius:50%;border:2px solid var(--gold);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .18s;}
+.ait.done .ach{background:var(--gold);}
+.ab{flex:1;font-size:13px;color:var(--ink2);}
+.ameta{display:flex;align-items:center;gap:5px;margin-top:2px;flex-wrap:wrap;}
+.atag{font-size:10px;padding:1px 6px;border-radius:20px;background:var(--p3);color:var(--ink3);}
+.adl{font-size:10px;color:var(--ink3);}
+.adl.over{color:#c0503a;font-weight:500;}
+.adl.soon{color:#c07030;font-weight:500;}
+
+/* STATS GRID */
+.sg{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:13px;}
+.st-tile{background:linear-gradient(135deg,var(--bg2),#150803);border:1px solid rgba(200,153,42,.25);border-radius:4px;padding:11px;text-align:center;box-shadow:0 3px 11px rgba(0,0,0,.38);}
+.st-tile-n{font-family:'Shippori Mincho',serif;font-size:21px;font-weight:700;color:var(--g2);display:block;text-shadow:0 0 10px rgba(200,153,42,.35);}
+.st-tile-l{font-size:10px;color:var(--wp);letter-spacing:.08em;margin-top:1px;}
+
+/* YEAR */
+.yr-hero{background:linear-gradient(155deg,#0d0805,var(--bg2) 50%,#0d0805);border:1px solid rgba(200,153,42,.4);border-radius:6px;padding:20px 18px;margin-bottom:13px;text-align:center;box-shadow:0 7px 30px rgba(0,0,0,.55);position:relative;overflow:hidden;}
+.yr-hero::before{content:'✦  ✦  ✦';position:absolute;top:9px;left:50%;transform:translateX(-50%);font-size:9px;color:rgba(200,153,42,.32);letter-spacing:.5em;}
+.yr-n{font-family:'Shippori Mincho',serif;font-size:46px;font-weight:700;color:var(--g2);text-shadow:0 0 28px rgba(200,153,42,.5);line-height:1;}
+.yr-l{font-size:11px;color:var(--wp);letter-spacing:.15em;margin-top:3px;}
+.yr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:13px;}
+.yr-tile{background:linear-gradient(135deg,var(--bg2),#150803);border:1px solid rgba(200,153,42,.22);border-radius:4px;padding:11px;text-align:center;box-shadow:0 3px 11px rgba(0,0,0,.38);}
+.yr-tile-n{font-family:'Shippori Mincho',serif;font-size:21px;font-weight:700;color:var(--g2);display:block;}
+.yr-tile-l{font-size:10px;color:var(--wp);letter-spacing:.08em;margin-top:1px;}
+.yr-rep{font-size:13px;color:var(--p2);line-height:1.85;}
+.yr-rep strong{color:var(--g2);}
+
+/* MISC */
+.flbl{font-size:10px;font-weight:500;color:var(--ink3);letter-spacing:.15em;text-transform:uppercase;margin-bottom:9px;}
+.nbadge{background:#8b1a1a;color:white;font-size:9px;padding:1px 5px;border-radius:20px;margin-left:4px;vertical-align:middle;}
+.loading{display:inline-flex;align-items:center;gap:6px;color:var(--g2);font-size:12px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:14px;height:14px;border:2px solid rgba(200,153,42,.25);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
+
+/* TOAST */
+@keyframes tpop{0%{opacity:0;transform:translate(-50%,8px)}15%{opacity:1;transform:translate(-50%,-3px)}80%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-10px)}}
+.toast{position:fixed;top:calc(66px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--wd),#1a0a02);color:var(--g2);padding:9px 22px;border-radius:40px;font-family:'Shippori Mincho',serif;font-size:13px;font-weight:600;border:1px solid var(--gold);box-shadow:0 6px 26px rgba(0,0,0,.6),0 0 28px rgba(200,153,42,.25);animation:tpop 2.8s ease forwards;z-index:999;pointer-events:none;white-space:nowrap;}
+
+/* BOTTOM NAV */
+.bnav{display:none;position:fixed;bottom:0;left:0;right:0;background:linear-gradient(180deg,#2a1505,#1a0a02);border-top:1px solid rgba(200,153,42,.35);padding:6px 0;padding-bottom:max(6px,env(safe-area-inset-bottom));z-index:200;box-shadow:0 -4px 16px rgba(0,0,0,.5);}
+.bnav-in{display:flex;justify-content:space-around;align-items:center;}
+.bnb{background:none;border:none;color:var(--wp);font-family:inherit;font-size:10px;letter-spacing:.03em;display:flex;flex-direction:column;align-items:center;gap:2px;padding:3px 9px;border-radius:7px;cursor:pointer;transition:all .18s;min-width:52px;}
+.bnb .bi{font-size:20px;line-height:1;}
+.bnb.on{color:var(--g2);}
+.bnb.on .bi{filter:drop-shadow(0 0 3px rgba(200,153,42,.55));}
+
+/* RESPONSIVE */
+@media(max-width:640px){
+  .tnav-wrap{display:none;}
+  .bnav{display:block;}
+  .logo-s{display:none;}
+  .logo{font-size:15px;}
+  .main{padding:13px 11px calc(80px + env(safe-area-inset-bottom));}
+  .char-wrap{flex-direction:column;text-align:center;padding:16px 13px;gap:11px;}
+  .char-wrap::after{display:none;}
+  .st-row{justify-content:center;}
+  .card,.dcard{padding:13px 13px;}
+  .sg,.yr-grid{gap:7px;}
+}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--p3);border-radius:2px;}
+.h{display:none!important;}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="logo">Bibliogrowth<span class="logo-s">私だけの図書館</span></div>
+  <nav class="tnav-wrap">
+    <button class="tnav on" onclick="go('home')">📖 ホーム</button>
+    <button class="tnav" onclick="go('session')">✍️ 読書</button>
+    <button class="tnav" onclick="go('evening')">🌙 振り返り</button>
+    <button class="tnav" onclick="go('library')">🏛 図書館</button>
+    <button class="tnav" onclick="go('year')">🎋 年間</button>
+  </nav>
+</header>
+
+<main class="main">
+
+<!-- HOME -->
+<div id="pg-home" class="pg on">
+  <div class="char-wrap">
+    <div class="char-fig" id="cFig"></div>
+    <div class="char-info">
+      <div class="char-name" id="cName">読書のたまご</div>
+      <div class="char-lv" id="cLv">— LEVEL 1 · 書物の入門者 —</div>
+      <div class="exp-row"><span>経験値</span><span id="expTxt">0 / 100 XP</span></div>
+      <div class="exp-track"><div class="exp-fill" id="expFill" style="width:0%"></div></div>
+      <div class="st-row">
+        <div class="st"><span class="st-n" id="sB">0</span><div class="st-l">読了冊数</div></div>
+        <div class="st"><span class="st-n" id="sA">0</span><div class="st-l">行動達成</div></div>
+        <div class="st"><span class="st-n" id="sS">0</span><div class="st-l">連続日数</div></div>
+        <div class="st"><span class="st-n" id="sV">¥0</span><div class="st-l">知識資産</div></div>
+      </div>
+    </div>
+  </div>
+  <div id="evBan" class="ev-ban h">
+    <div class="ev-moon">🌙</div>
+    <div class="ev-t">夜の振り返りの時間です</div>
+    <div class="ev-s">今日のアクションを振り返りましょう。</div>
+    <button class="btn btn-g btn-sm" onclick="go('evening')" style="position:relative;z-index:1">振り返りを始める →</button>
+  </div>
+  <div class="card">
+    <div class="ct">📋 今日のアクション</div>
+    <div id="hActs"><p style="font-size:13px;color:var(--ink3)">読書セッションからアクションを生成しましょう。</p></div>
+    <div style="margin-top:11px"><button class="btn btn-w" onclick="go('session')">＋ 今日の気づきを入力する</button></div>
+  </div>
+  <div class="card">
+    <div class="ct">💡 最近の気づき</div>
+    <div id="hIns"><p style="font-size:13px;color:var(--ink3)">まだ記録がありません。</p></div>
+  </div>
+</div>
+
+<!-- SESSION -->
+<div id="pg-session" class="pg">
+<div class="card">
+  <div class="ct">✍️ 読書セッション</div>
+  <div id="s1">
+    <div class="flbl">今日の本と気づき</div>
+    <label class="lbl">読んでいる本のタイトル</label>
+    <input class="inp" id="fBook" placeholder="例：７つの習慣" type="text"/>
+    <label class="lbl">今日の気づき</label>
+    <textarea class="ta" id="fIns" rows="4" placeholder="例：「緊急でないが重要なこと」を後回しにしていることに気づいた。"></textarea>
+    <label class="lbl">この本を読んでいるテーマ</label>
+    <div class="wtags" id="wEl">
+      <span class="wtag" onclick="tw(this)">仕事の生産性</span>
+      <span class="wtag" onclick="tw(this)">人間関係</span>
+      <span class="wtag" onclick="tw(this)">自己成長</span>
+      <span class="wtag" onclick="tw(this)">お金・資産</span>
+      <span class="wtag" onclick="tw(this)">健康・習慣</span>
+      <span class="wtag" onclick="tw(this)">メンタル</span>
+      <span class="wtag" onclick="tw(this)">キャリア</span>
+      <span class="wtag" onclick="tw(this)">人生の方向性</span>
+    </div>
+    <label class="lbl">刺さり度</label>
+    <div class="star-row" id="sEl">
+      <button class="star-b" onclick="setSt(1)">★</button>
+      <button class="star-b" onclick="setSt(2)">★</button>
+      <button class="star-b" onclick="setSt(3)">★</button>
+      <button class="star-b" onclick="setSt(4)">★</button>
+      <button class="star-b" onclick="setSt(5)">★</button>
+    </div>
+    <div style="margin-top:15px"><button class="btn btn-g" onclick="startSess()">深掘り対話を始める →</button></div>
+  </div>
+  <div id="s2" class="h">
+    <div class="flbl">深掘り対話（1問）</div>
+    <div class="chat" id="chatEl"></div>
+    <div class="chat-row" id="cRow">
+      <input class="inp" id="cIn" placeholder="回答を入力…" onkeydown="if(event.key==='Enter')send()"/>
+      <button class="btn btn-w" onclick="send()">送信</button>
+    </div>
+  </div>
+  <div id="s3" class="h">
+    <div class="flbl">アクションプラン（期限付き）</div>
+    <div id="pOut"></div>
+    <button class="btn btn-g" style="width:100%;margin-top:13px" onclick="savePlan()">✓ 図書館に記録して実行する</button>
+  </div>
+</div>
+</div>
+
+<!-- EVENING -->
+<div id="pg-evening" class="pg">
+  <div class="ev-ban">
+    <div class="ev-moon">🌙</div>
+    <div class="ev-t">夜の振り返り</div>
+    <div class="ev-s">今日のアクションを確認して、一言残しましょう。</div>
+  </div>
+  <div class="card">
+    <div class="ct">📋 今日のアクション</div>
+    <div id="evActs"><p style="font-size:13px;color:var(--ink3)">今日のアクションはありません。</p></div>
+  </div>
+  <div class="card">
+    <div class="ct">✍️ 今日の一言振り返り</div>
+    <label class="lbl">今日の気分</label>
+    <div class="mood-row" id="moodEl">
+      <button class="mood-b on" onclick="setMood(this,'😊')">😊</button>
+      <button class="mood-b" onclick="setMood(this,'💪')">💪</button>
+      <button class="mood-b" onclick="setMood(this,'🤔')">🤔</button>
+      <button class="mood-b" onclick="setMood(this,'😔')">😔</button>
+      <button class="mood-b" onclick="setMood(this,'🔥')">🔥</button>
+      <button class="mood-b" onclick="setMood(this,'😴')">😴</button>
+    </div>
+    <label class="lbl">振り返り（行動できたこと・気づき）</label>
+    <textarea class="ta" id="refTxt" rows="3" placeholder="例：朝15分の読書を実践できた。思ったより続けやすかった。"></textarea>
+    <button class="btn btn-g" style="width:100%;margin-top:13px" onclick="saveRef()">振り返りを記録する ✓</button>
+  </div>
+  <div class="card">
+    <div class="ct">📖 過去の振り返り</div>
+    <div id="pRefs"><p style="font-size:13px;color:var(--ink3)">まだ記録がありません。</p></div>
+  </div>
+</div>
+
+<!-- LIBRARY -->
+<div id="pg-library" class="pg">
+  <div class="sg">
+    <div class="st-tile"><span class="st-tile-n" id="lB">0</span><div class="st-tile-l">読了冊数</div></div>
+    <div class="st-tile"><span class="st-tile-n" id="lI">0</span><div class="st-tile-l">総気づき数</div></div>
+    <div class="st-tile"><span class="st-tile-n" id="lAs">¥0</span><div class="st-tile-l">知識資産</div></div>
+  </div>
+  <div class="shelf-wrap">
+    <div class="shelf-t">🏛 私の本棚<span class="shelf-hint">読書中は金枠で表示</span></div>
+    <div class="shelf" id="shelfEl"></div>
+    <div style="height:6px;background:linear-gradient(180deg,#2a1508,#1a0a02);border-radius:0 0 3px 3px;margin-bottom:16px"></div>
+  </div>
+  <div class="bdet" id="bdetEl"></div>
+  <div class="dcard">
+    <div class="dct">🔮 成長パターン分析 <span class="nbadge">AI</span></div>
+    <div id="anaEl" style="font-size:13px;color:var(--wp)">本を1冊以上記録すると分析できます。</div>
+    <div style="margin-top:11px"><button class="btn btn-g btn-sm" onclick="runAna()">今すぐ分析する</button></div>
+  </div>
+  <div class="card">
+    <div class="ct">📚 おすすめ本 <span class="nbadge">AI</span></div>
+    <label class="lbl">今の悩みや状況（任意）</label>
+    <textarea class="ta" id="ctxIn" rows="2" placeholder="例：チームリーダーを任されて悩んでいる"></textarea>
+    <div style="margin-top:9px"><button class="btn btn-w" onclick="getRecs()">おすすめを生成する →</button></div>
+    <div id="recEl" style="margin-top:11px"></div>
+  </div>
+  <div class="card">
+    <div class="ct">🔍 テーマ別で振り返る</div>
+    <div class="wtags" id="filtTags">
+      <span class="wtag on" onclick="filt(this,'')">すべて</span>
+      <span class="wtag" onclick="filt(this,'仕事の生産性')">仕事の生産性</span>
+      <span class="wtag" onclick="filt(this,'人間関係')">人間関係</span>
+      <span class="wtag" onclick="filt(this,'自己成長')">自己成長</span>
+      <span class="wtag" onclick="filt(this,'お金・資産')">お金・資産</span>
+      <span class="wtag" onclick="filt(this,'健康・習慣')">健康・習慣</span>
+      <span class="wtag" onclick="filt(this,'メンタル')">メンタル</span>
+      <span class="wtag" onclick="filt(this,'キャリア')">キャリア</span>
+    </div>
+    <div id="filtEl"></div>
+  </div>
+  <div class="card">
+    <div class="ct">📋 アクション一覧</div>
+    <div id="allActs"><p style="font-size:13px;color:var(--ink3)">アクションがまだありません。</p></div>
+  </div>
+</div>
+
+<!-- YEAR -->
+<div id="pg-year" class="pg">
+  <div class="yr-hero">
+    <div class="yr-n" id="yrN">0</div>
+    <div class="yr-l">冊 ／ <span id="yrY">2025</span>年</div>
+    <div style="margin-top:12px;font-size:11px;color:var(--wp)">今年の知識資産：<span id="yrAs" style="color:var(--g2);font-family:'Shippori Mincho',serif">¥0</span></div>
+  </div>
+  <div class="yr-grid">
+    <div class="yr-tile"><span class="yr-tile-n" id="yrI">0</span><div class="yr-tile-l">総気づき</div></div>
+    <div class="yr-tile"><span class="yr-tile-n" id="yrA">0</span><div class="yr-tile-l">行動達成</div></div>
+    <div class="yr-tile"><span class="yr-tile-n" id="yrR">0</span><div class="yr-tile-l">振り返り</div></div>
+  </div>
+  <div class="dcard">
+    <div class="dct">🎋 年間ふりかえりレポート <span class="nbadge">AI</span></div>
+    <div id="yrRep" style="font-size:13px;color:var(--wp)">「レポートを生成する」を押すと、今年の読書・行動・成長をAIがまとめます。</div>
+    <div style="margin-top:13px"><button class="btn btn-g" onclick="genYr()">✦ レポートを生成する</button></div>
+  </div>
+  <div class="card">
+    <div class="ct">📚 今年読んだ本</div>
+    <div id="yrBks"><p style="font-size:13px;color:var(--ink3)">まだ記録がありません。</p></div>
+  </div>
+</div>
+
+</main>
+
+<nav class="bnav">
+  <div class="bnav-in">
+    <button class="bnb on" id="bn-home" onclick="go('home')"><span class="bi">📖</span>ホーム</button>
+    <button class="bnb" id="bn-session" onclick="go('session')"><span class="bi">✍️</span>読書</button>
+    <button class="bnb" id="bn-evening" onclick="go('evening')"><span class="bi">🌙</span>振り返り</button>
+    <button class="bnb" id="bn-library" onclick="go('library')"><span class="bi">🏛</span>図書館</button>
+    <button class="bnb" id="bn-year" onclick="go('year')"><span class="bi">🎋</span>年間</button>
+  </div>
+</nav>
+
+<script>
+const COLS=['#8b1a1a','#1a3a5c','#2d5a27','#5c3a8b','#7a4a10','#1a5c4a','#5c1a3a','#2a4a1a','#3a2a6b','#6b3a10','#1a4a6b','#6b1a2a','#4a6b1a'];
+const LVS=[
+  {lv:1,xp:100,stage:'egg',name:'読書のたまご',title:'書物の入門者'},
+  {lv:2,xp:250,stage:'chick',name:'よちよち読書家',title:'知識の芽吹き'},
+  {lv:3,xp:500,stage:'child',name:'本の虫',title:'思索の若葉'},
+  {lv:4,xp:900,stage:'teen',name:'思索の学徒',title:'洞察の読人'},
+  {lv:5,xp:1500,stage:'adult',name:'叡智の読師',title:'叡智の賢者'},
+  {lv:6,xp:99999,stage:'sage',name:'書物の導師',title:'書物の導師'}
+];
+const PGS=['home','session','evening','library','year'];
+
+let S=JSON.parse(localStorage.getItem('bg4')||'null')||{exp:0,books:[],insights:[],actions:[],reflections:[],done:0,streak:0,lastDate:null};
+let sess={book:'',insight:'',worries:[],stars:3,pending:[]};
+let curStars=3,curMood='😊',selW=[];
+
+function save(){localStorage.setItem('bg4',JSON.stringify(S));}
+function getLv(){let a=0;for(let l of LVS){a+=l.xp;if(S.exp<a)return l;}return LVS[LVS.length-1];}
+function getExp(){let a=0,p=0;for(let l of LVS){p=a;a+=l.xp;if(S.exp<a)return{cur:S.exp-p,need:l.xp};}return{cur:0,need:1};}
+
+function cSVG(stage,lv){
+  const g='#e8c060',sk='#f5d5a0',dk='#3b2510';
+  const au=lv>=5?`<circle cx="60" cy="60" r="50" fill="none" stroke="${g}" stroke-width="1" stroke-dasharray="3 4" opacity=".4"/>`:'';
+  if(stage==='egg')return`<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">${au}<ellipse cx="60" cy="68" rx="28" ry="35" fill="#f5edd8" stroke="#c4956a" stroke-width="1.5"/><path d="M48 60 Q60 52 72 60" stroke="#c4956a" stroke-width="1" fill="none" opacity=".5"/><text x="60" y="110" text-anchor="middle" font-size="11" fill="${g}" font-family="serif">Lv.1</text></svg>`;
+  if(stage==='chick')return`<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">${au}<ellipse cx="60" cy="78" rx="22" ry="26" fill="#f5d060" stroke="#c4a030" stroke-width="1.5"/><circle cx="60" cy="52" r="18" fill="#f5d060" stroke="#c4a030" stroke-width="1.5"/><circle cx="54" cy="49" r="3" fill="${dk}"/><circle cx="66" cy="49" r="3" fill="${dk}"/><path d="M56 57 Q60 62 64 57" stroke="${dk}" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M42 60 L36 52 L42 56" fill="#f0a030"/><path d="M78 60 L84 52 L78 56" fill="#f0a030"/><text x="60" y="110" text-anchor="middle" font-size="11" fill="${g}" font-family="serif">Lv.2</text></svg>`;
+  if(stage==='child')return`<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">${au}<ellipse cx="60" cy="88" rx="20" ry="18" fill="#7a4a28"/><rect x="48" y="70" width="24" height="22" rx="3" fill="#3b6b9b"/><circle cx="60" cy="50" r="18" fill="${sk}" stroke="#c4956a" stroke-width="1.5"/><circle cx="54" cy="47" r="2.5" fill="${dk}"/><circle cx="66" cy="47" r="2.5" fill="${dk}"/><path d="M55 56 Q60 61 65 56" stroke="${dk}" stroke-width="1.5" fill="none" stroke-linecap="round"/><rect x="44" y="32" width="32" height="4" rx="2" fill="#c4a030" opacity=".7"/><text x="60" y="110" text-anchor="middle" font-size="11" fill="${g}" font-family="serif">Lv.3</text></svg>`;
+  if(stage==='teen')return`<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">${au}<ellipse cx="60" cy="92" rx="18" ry="14" fill="#5c3418"/><rect x="46" y="65" width="28" height="30" rx="3" fill="#8b1a1a"/><circle cx="60" cy="45" r="19" fill="${sk}" stroke="#c4956a" stroke-width="1.5"/><circle cx="53" cy="43" r="2.5" fill="${dk}"/><circle cx="67" cy="43" r="2.5" fill="${dk}"/><path d="M55 53 Q60 58 65 53" stroke="${dk}" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M41 30 Q60 22 79 30 Q75 46 60 44 Q45 46 41 30Z" fill="#3b2010"/><rect x="74" y="75" width="14" height="10" rx="3" fill="${g}"/><text x="60" y="112" text-anchor="middle" font-size="11" fill="${g}" font-family="serif">Lv.4</text></svg>`;
+  return`<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><circle cx="60" cy="60" r="54" fill="none" stroke="${g}" stroke-width="1" opacity=".25"/>${au}<ellipse cx="60" cy="95" rx="18" ry="12" fill="#3b2010"/><path d="M40 65 Q40 95 60 95 Q80 95 80 65" fill="#8b1a1a"/><circle cx="60" cy="42" r="20" fill="${sk}" stroke="#c4956a" stroke-width="1.5"/><circle cx="53" cy="40" r="3" fill="${dk}"/><circle cx="67" cy="40" r="3" fill="${dk}"/><path d="M54 50 Q60 56 66 50" stroke="${dk}" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M40 28 Q60 16 80 28 Q76 46 60 42 Q44 46 40 28Z" fill="#f5e0a0" stroke="${g}" stroke-width="1.5"/><rect x="74" y="70" width="16" height="12" rx="3" fill="${g}"/><text x="60" y="115" text-anchor="middle" font-size="11" fill="${g}" font-family="serif">Lv.${lv}</text></svg>`;
+}
+
+function ui(){
+  const lv=getLv(),ex=getExp();
+  const pct=Math.min(100,Math.round(ex.cur/ex.need*100));
+  document.getElementById('cFig').innerHTML=cSVG(lv.stage,lv.lv);
+  document.getElementById('cName').textContent=lv.name;
+  document.getElementById('cLv').textContent=`— LEVEL ${lv.lv} · ${lv.title} —`;
+  document.getElementById('expTxt').textContent=`${ex.cur} / ${ex.need} XP`;
+  document.getElementById('expFill').style.width=pct+'%';
+  const doneB=S.books.filter(b=>b.done).length;
+  const asset=doneB*8000+S.done*1500;
+  document.getElementById('sB').textContent=doneB;
+  document.getElementById('sA').textContent=S.done;
+  document.getElementById('sS').textContent=S.streak;
+  document.getElementById('sV').textContent='¥'+asset.toLocaleString();
+  document.getElementById('lB').textContent=doneB;
+  document.getElementById('lI').textContent=S.insights.length;
+  document.getElementById('lAs').textContent='¥'+asset.toLocaleString();
+  const yr=new Date().getFullYear();
+  const yrBks=S.books.filter(b=>b.done&&new Date(b.date).getFullYear()===yr);
+  document.getElementById('yrY').textContent=yr;
+  document.getElementById('yrN').textContent=yrBks.length;
+  document.getElementById('yrAs').textContent='¥'+(yrBks.length*8000+S.done*1500).toLocaleString();
+  document.getElementById('yrI').textContent=S.insights.filter(i=>new Date(i.date).getFullYear()===yr).length;
+  document.getElementById('yrA').textContent=S.actions.filter(a=>a.done&&new Date(a.date).getFullYear()===yr).length;
+  document.getElementById('yrR').textContent=S.reflections.filter(r=>new Date(r.date).getFullYear()===yr).length;
+  const h=new Date().getHours();
+  const todayA=S.actions.filter(a=>new Date(a.date).toDateString()===new Date().toDateString());
+  document.getElementById('evBan').classList.toggle('h',!(h>=18&&todayA.length));
+  rHA();rHI();rShelf();rFiltB('');rEv();rPR();rAllA();rYrBks();
+}
+
+function rHA(){
+  const el=document.getElementById('hActs');
+  const today=new Date().toDateString();
+  const ta=S.actions.filter(a=>new Date(a.date).toDateString()===today&&!a.done);
+  if(!ta.length){const all=S.actions.filter(a=>new Date(a.date).toDateString()===today);el.innerHTML=`<p style="font-size:13px;color:var(--ink3)">${all.length?'今日のアクションをすべて完了！🎉':'読書セッションからアクションを生成しましょう。'}</p>`;return;}
+  el.innerHTML=ta.map(a=>aH(a)).join('');
+}
+function rHI(){
+  const el=document.getElementById('hIns');
+  const r=S.insights.slice(-3).reverse();
+  if(!r.length){el.innerHTML='<p style="font-size:13px;color:var(--ink3)">まだ記録がありません。</p>';return;}
+  el.innerHTML=r.map(i=>`<div style="padding:8px 0;border-bottom:1px solid var(--p3)"><div style="font-size:10px;color:var(--ink3)">${new Date(i.date).toLocaleDateString('ja-JP')} · ${x(i.book)}</div><div style="font-size:13px;margin-top:2px;color:var(--ink2)">${x(i.text).slice(0,85)}${i.text.length>85?'…':''}</div></div>`).join('');
+}
+
+function rShelf(){
+  const sh=document.getElementById('shelfEl');
+  const bks=uB();
+  if(!bks.length){sh.innerHTML='<div style="color:rgba(255,255,255,.2);font-size:12px;padding:14px">本を読んだら本棚に並びます</div>';return;}
+  let html=bks.map((b,i)=>{
+    const h=56+(b.stars||3)*8+(i%3)*4;
+    const c=COLS[i%COLS.length];
+    return`<div class="bsp${b.done?'':' reading'}" style="height:${h}px;background:linear-gradient(90deg,${sh2(c,-28)} 0%,${c} 30%,${sh2(c,18)} 100%)" onclick="showB('${x(b.title)}')">
+      <div class="btxt">${x(b.title)}</div>
+      <div class="bstars">${'★'.repeat(b.stars||3)}</div>
+    </div>`;
+  }).join('');
+  for(let i=bks.length;i<Math.max(bks.length+3,8);i++) html+=`<div class="bslot"></div>`;
+  sh.innerHTML=html;
+}
+
+function showB(title){
+  const bk=S.books.find(b=>b.title===title);if(!bk)return;
+  const ins=S.insights.filter(i=>i.book===title);
+  const acts=S.actions.filter(a=>a.book===title);
+  const idx=uB().findIndex(b=>b.title===title);
+  const c=COLS[idx%COLS.length];
+  const stars='★'.repeat(bk.stars||3)+'☆'.repeat(5-(bk.stars||3));
+  const d=document.getElementById('bdetEl');
+  d.className='bdet on';
+  d.innerHTML=`
+    <div style="display:flex;align-items:flex-start;gap:11px;margin-bottom:11px">
+      <div style="width:36px;height:52px;border-radius:2px 4px 4px 2px;background:linear-gradient(90deg,${sh2(c,-28)},${c});display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:3px 0 7px rgba(0,0,0,.4)">
+        <span style="writing-mode:vertical-rl;font-size:8px;font-weight:700;color:rgba(255,255,255,.9);font-family:serif">${x(title.slice(0,4))}</span>
+      </div>
+      <div style="flex:1">
+        <div style="font-family:'Shippori Mincho',serif;font-size:15px;font-weight:700;color:var(--wd);margin-bottom:2px">${x(title)}</div>
+        <div style="color:var(--gold);font-size:13px;margin-bottom:3px">${stars}</div>
+        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+          <span class="badge ${bk.done?'b-done':'b-reading'}">${bk.done?'読了':'読書中'}</span>
+          <span style="font-size:10px;color:var(--ink3)">${new Date(bk.date).toLocaleDateString('ja-JP')}</span>
+          ${bk.worries?.length?`<span style="font-size:10px;color:var(--ink3)">${bk.worries.join('・')}</span>`:''}
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        ${!bk.done?`<button class="btn btn-g btn-sm" onclick="markDone('${x(title)}')">読了 ✓</button>`:''}
+        <button class="btn btn-sm btn-w" onclick="document.getElementById('bdetEl').className='bdet'">✕</button>
+      </div>
+    </div>
+    ${ins.length?`<div style="font-size:10px;color:var(--ink3);letter-spacing:.1em;margin:8px 0 4px">💡 気づき (${ins.length}件)</div>${ins.map(i=>`<div style="background:rgba(0,0,0,.04);border-left:3px solid var(--gold);padding:6px 9px;margin-bottom:4px;font-size:13px;line-height:1.7;color:var(--ink2)">${x(i.text)}</div>`).join('')}`:''}
+    ${acts.length?`<div style="font-size:10px;color:var(--ink3);letter-spacing:.1em;margin:8px 0 4px">📋 アクション</div><ul style="list-style:none">${acts.map(a=>`<li style="padding:4px 0;border-bottom:1px solid var(--p3);font-size:12px;color:var(--ink2);display:flex;align-items:center;gap:5px"><span style="color:var(--gold);font-size:8px">✦</span>${x(a.text)}${a.done?'<span style="color:var(--gold);font-size:10px;margin-left:auto">✓</span>':''}</li>`).join('')}</ul>`:''}
+  `;
+  d.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function markDone(title){
+  const b=S.books.find(b=>b.title===title);
+  if(b){b.done=true;S.exp+=15;save();toast('📗 読了おめでとう！ +15XP');ui();showB(title);}
+}
+
+function filt(el,worry){
+  document.querySelectorAll('#filtTags .wtag').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');rFiltB(worry);
+}
+function rFiltB(worry){
+  const el=document.getElementById('filtEl');
+  let bks=uB();
+  if(worry) bks=bks.filter(b=>b.worries&&b.worries.includes(worry));
+  if(!bks.length){el.innerHTML='<p style="font-size:13px;color:var(--ink3);margin-top:8px">該当する本がありません。</p>';return;}
+  el.innerHTML=bks.map(b=>{
+    const stars='★'.repeat(b.stars||3)+'☆'.repeat(5-(b.stars||3));
+    return`<div style="padding:9px 0;border-bottom:1px solid var(--p3);cursor:pointer" onclick="showB('${x(b.title)}')">
+      <div style="display:flex;align-items:center;gap:7px"><span style="color:var(--gold);font-size:12px">${stars}</span><strong style="font-family:'Shippori Mincho',serif;font-size:13px;color:var(--wd)">${x(b.title)}</strong><span class="badge ${b.done?'b-done':'b-reading'}">${b.done?'読了':'読書中'}</span></div>
+      <div style="font-size:10px;color:var(--ink3);margin-top:2px">${new Date(b.date).toLocaleDateString('ja-JP')} · 気づき${S.insights.filter(i=>i.book===b.title).length}件${b.worries?.length?' · '+b.worries.join('・'):''}</div>
+    </div>`;
+  }).join('');
+}
+
+function rAllA(){
+  const el=document.getElementById('allActs');
+  if(!S.actions.length){el.innerHTML='<p style="font-size:13px;color:var(--ink3)">アクションがまだありません。</p>';return;}
+  const vis=S.actions.filter(a=>!a.archived).slice().reverse();
+  el.innerHTML=vis.map(a=>`<div style="font-size:10px;color:var(--ink3);margin:9px 0 3px">${new Date(a.date).toLocaleDateString('ja-JP')} · ${x(a.book)}</div>${aH(a)}`).join('');
+}
+
+function aH(a){
+  const now=new Date();
+  const dl=a.deadline?new Date(a.deadline):null;
+  const over=dl&&!a.done&&dl<now;
+  const soon=dl&&!a.done&&!over&&(dl-now)<172800000;
+  const dlT=dl?`<span class="adl ${over?'over':soon?'soon':''}">${over?'⚠ 期限切れ':soon?'⏰ まもなく':'📅 '}${dl.toLocaleDateString('ja-JP')}</span>`:'';
+  return`<div class="ait ${a.done?'done':''} ${over?'over':''}" onclick="togA('${a.id}')">
+    <div class="ach">${a.done?`<svg width="11" height="11" viewBox="0 0 11 11"><path d="M1.5 5.5l3 3 5-5" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`:''}</div>
+    <div class="ab">${x(a.text)}<div class="ameta"><span class="atag">${a.tag||'行動'}</span>${dlT}</div></div>
+  </div>`;
+}
+
+function togA(id){
+  const a=S.actions.find(a=>String(a.id)===String(id));if(!a)return;
+  const was=a.done;a.done=!a.done;
+  const pl=getLv().lv;
+  if(!was){S.done++;S.exp+=20;}else{S.done=Math.max(0,S.done-1);S.exp=Math.max(0,S.exp-20);}
+  save();if(getLv().lv>pl)toast(`🎉 レベルアップ！ Lv.${getLv().lv} — ${getLv().title}`);
+  ui();
+}
+
+function rEv(){
+  const el=document.getElementById('evActs');
+  const today=new Date().toDateString();
+  const ta=S.actions.filter(a=>new Date(a.date).toDateString()===today);
+  if(!ta.length){el.innerHTML='<p style="font-size:13px;color:var(--ink3)">今日のアクションはありません。</p>';return;}
+  el.innerHTML=ta.map(a=>aH(a)).join('');
+}
+function rPR(){
+  const el=document.getElementById('pRefs');
+  if(!S.reflections.length){el.innerHTML='<p style="font-size:13px;color:var(--ink3)">まだ記録がありません。</p>';return;}
+  el.innerHTML=S.reflections.slice().reverse().map(r=>`<div style="padding:9px 0;border-bottom:1px solid var(--p3)"><div style="font-size:10px;color:var(--ink3);margin-bottom:2px">${new Date(r.date).toLocaleDateString('ja-JP')}</div><div style="font-size:13px;color:var(--ink2);line-height:1.65">${r.mood} ${x(r.text)}</div></div>`).join('');
+}
+function setMood(el,m){curMood=m;document.querySelectorAll('.mood-b').forEach(b=>b.classList.remove('on'));el.classList.add('on');}
+function saveRef(){
+  const txt=document.getElementById('refTxt').value.trim();
+  if(!txt){alert('振り返りを入力してください。');return;}
+  S.reflections.push({id:Date.now(),date:new Date().toISOString(),text:txt,mood:curMood});
+  S.exp+=10;save();document.getElementById('refTxt').value='';toast('🌙 振り返りを記録しました +10XP');ui();
+}
+
+function rYrBks(){
+  const el=document.getElementById('yrBks');
+  const yr=new Date().getFullYear();
+  const bks=uB().filter(b=>new Date(b.date).getFullYear()===yr);
+  if(!bks.length){el.innerHTML='<p style="font-size:13px;color:var(--ink3)">今年はまだ記録がありません。</p>';return;}
+  el.innerHTML=bks.map(b=>{
+    const stars='★'.repeat(b.stars||3)+'☆'.repeat(5-(b.stars||3));
+    return`<div style="padding:9px 0;border-bottom:1px solid var(--p3);display:flex;align-items:center;gap:9px"><span style="color:var(--gold);font-size:12px">${stars}</span><div style="flex:1"><div style="font-family:'Shippori Mincho',serif;font-size:13px;font-weight:600;color:var(--wd)">${x(b.title)}</div><div style="font-size:10px;color:var(--ink3)">${new Date(b.date).toLocaleDateString('ja-JP')}${b.worries?.length?' · '+b.worries.join('・'):''}</div></div><span class="badge ${b.done?'b-done':'b-reading'}">${b.done?'読了':'読書中'}</span></div>`;
+  }).join('');
+}
+
+async function genYr(){
+  const el=document.getElementById('yrRep');
+  el.innerHTML=`<div class="loading"><div class="spinner"></div>AIが今年を振り返っています…</div>`;
+  const yr=new Date().getFullYear();
+  const yrBks=uB().filter(b=>new Date(b.date).getFullYear()===yr);
+  const yrI=S.insights.filter(i=>new Date(i.date).getFullYear()===yr);
+  const yrA=S.actions.filter(a=>a.done&&new Date(a.date).getFullYear()===yr);
+  const r=await ai([{role:'user',content:`${yr}年の読書記録：\n本：${yrBks.map(b=>`「${b.title}」(★${b.stars||3},テーマ:${(b.worries||[]).join('・')||'未設定'})`).join('、')||'なし'}\n気づき${yrI.length}件,行動達成${yrA.length}件,振り返り${S.reflections.filter(r=>new Date(r.date).getFullYear()===yr).length}回\n主な気づき：${yrI.slice(0,3).map(i=>i.text.slice(0,50)).join('／')}\n\n${yr}年の年間読書ふりかえりレポートを日本語で400字程度で。1.今年のテーマ 2.最も成長した領域 3.来年への一言メッセージ を含め、<strong>タグで重要キーワードを強調してください。`}]);
+  el.innerHTML=`<div class="yr-rep">${r.replace(/\n/g,'<br>')}</div>`;
+}
+
+async function runAna(){
+  const el=document.getElementById('anaEl');
+  el.innerHTML=`<div class="loading"><div class="spinner"></div>分析中…</div>`;
+  const r=await ai([{role:'user',content:`読書記録：${summ()}\n\n私の成長パターンを日本語300字以内で分析してください。読書スタイル・成長領域・注目パターン・次のステップを含め、<strong>タグで重要キーワードを強調してください。`}]);
+  el.innerHTML=`<div class="yr-rep">${r.replace(/\n/g,'<br>')}</div>`;
+}
+async function getRecs(){
+  const el=document.getElementById('recEl');
+  const ctx=document.getElementById('ctxIn').value.trim();
+  el.innerHTML=`<div class="loading"><div class="spinner"></div>あなた専用の本を探しています…</div>`;
+  const r=await ai([{role:'user',content:`読書記録：${summ()}\n今の状況：${ctx||'特になし'}\nおすすめ本4冊をJSON形式のみで：\n{"books":[{"title":"タイトル","author":"著者","reason":"推薦理由（1〜2文）","category":"カテゴリ"}]}`}]);
+  try{
+    const d=JSON.parse(r.replace(/```json|```/g,'').trim());
+    el.innerHTML=d.books.map((b,i)=>`<div style="display:flex;gap:11px;padding:11px 0;border-bottom:1px solid var(--p3)"><div style="width:34px;height:50px;border-radius:2px 4px 4px 2px;background:linear-gradient(90deg,${sh2(COLS[i%5],-28)},${COLS[i%5]});flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:3px 0 6px rgba(0,0,0,.3)"><span style="writing-mode:vertical-rl;font-size:8px;font-weight:700;color:rgba(255,255,255,.9);font-family:serif">${x(b.title.slice(0,4))}</span></div><div style="flex:1"><div style="font-family:'Shippori Mincho',serif;font-size:13px;font-weight:700;color:var(--wd)">${x(b.title)}</div><div style="font-size:10px;color:var(--ink3);margin-bottom:4px">${x(b.author)} · ${x(b.category)}</div><div style="font-size:12px;color:var(--ink2);background:rgba(200,153,42,.07);border-radius:3px;padding:5px 8px;border-left:2px solid var(--gold);line-height:1.6">${x(b.reason)}</div></div></div>`).join('');
+  }catch(e){el.innerHTML=`<div style="font-size:13px;color:var(--ink2);line-height:1.7">${r}</div>`;}
+}
+function summ(){return `本：${uB().map(b=>`「${b.title}」★${b.stars||3}/${(b.worries||[]).join('・')||'未'}`).join('、')||'なし'};気づき${S.insights.length};達成率${S.actions.length?Math.round(S.actions.filter(a=>a.done).length/S.actions.length*100):0}%;連続${S.streak}日;振り返り${S.reflections.length}回`;}
+
+/* SESSION */
+function tw(el){const w=el.textContent;el.classList.toggle('on');if(el.classList.contains('on'))selW.push(w);else selW=selW.filter(v=>v!==w);}
+function setSt(n){curStars=n;document.querySelectorAll('#sEl .star-b').forEach((b,i)=>b.classList.toggle('on',i<n));}
+setSt(3);
+
+function startSess(){
+  const book=document.getElementById('fBook').value.trim();
+  const ins=document.getElementById('fIns').value.trim();
+  if(!book||!ins){alert('タイトルと気づきを入力してください。');return;}
+  sess={book,insight:ins,worries:[...selW],stars:curStars,pending:[]};
+  document.getElementById('s1').classList.add('h');
+  document.getElementById('s2').classList.remove('h');
+  document.getElementById('chatEl').innerHTML='';
+  addT();
+  ai([{role:'user',content:`私は「${book}」を読んでいます。今日の気づき：「${ins}」。読んでいた理由：${selW.join('、')||'未記入'}。\nこの気づきを日常行動に変えるための深掘り質問を1つだけ、簡潔に日本語でしてください。`}]).then(r=>{rmT();addB('ai',r);});
+}
+
+function send(){
+  const inp=document.getElementById('cIn');
+  const txt=inp.value.trim();if(!txt)return;inp.value='';
+  addB('user',txt);
+  document.getElementById('cRow').classList.add('h');
+  addT();genPlan(txt);
+}
+
+function genPlan(ans){
+  const prompt=`本：「${sess.book}」\n気づき：「${sess.insight}」\n回答：「${ans}」\nJSON形式のみで：\n{"summary":"一行まとめ","actions":[{"text":"今日できる小さな行動","tag":"今日","deadline_days":0},{"text":"今週意識すること","tag":"今週","deadline_days":7},{"text":"習慣化したいこと","tag":"習慣","deadline_days":30}]}`;
+  ai([{role:'user',content:prompt}]).then(r=>{
+    rmT();
+    try{
+      const d=JSON.parse(r.replace(/```json|```/g,'').trim());
+      sess.pending=d.actions;
+      addB('ai',`「${sess.book}」からの学びをまとめました。\n${d.summary}`);
+      setTimeout(()=>{
+        document.getElementById('s2').classList.add('h');
+        document.getElementById('s3').classList.remove('h');
+        const now=new Date();
+        document.getElementById('pOut').innerHTML=d.actions.map((a,i)=>{
+          const dl=new Date(now.getTime()+a.deadline_days*86400000);
+          const dls=a.deadline_days===0?'今日中':dl.toLocaleDateString('ja-JP')+'まで';
+          return`<div class="ait"><div class="ach" style="border-color:var(--gold)"><span style="font-size:11px;font-weight:700;color:var(--gold)">${i+1}</span></div><div class="ab">${x(a.text)}<div class="ameta"><span class="atag">${a.tag}</span><span class="adl">📅 ${dls}</span></div></div></div>`;
+        }).join('');
+      },1000);
+    }catch(e){addB('ai','プラン生成でエラーが発生しました。');}
+  });
+}
+
+function savePlan(){
+  const now=new Date().toISOString();
+  S.insights.push({id:Date.now(),date:now,book:sess.book,text:sess.insight});
+  const ex=S.books.find(b=>b.title===sess.book);
+  if(!ex) S.books.push({title:sess.book,date:now,done:false,stars:sess.stars,worries:sess.worries});
+  else{ex.stars=sess.stars;ex.worries=sess.worries;}
+  sess.pending.forEach(a=>{
+    const dl=new Date(Date.now()+a.deadline_days*86400000).toISOString();
+    S.actions.push({id:Date.now()+Math.random(),date:now,book:sess.book,text:a.text,tag:a.tag,deadline:dl,done:false});
+  });
+  const pl=getLv().lv;S.exp+=30;updS();save();
+  if(getLv().lv>pl)toast(`🎉 レベルアップ！ Lv.${getLv().lv} — ${getLv().title}`);
+  else toast('📚 記録しました！ +30XP');
+  document.getElementById('s1').classList.remove('h');
+  document.getElementById('s2').classList.add('h');
+  document.getElementById('s3').classList.add('h');
+  document.getElementById('cRow').classList.remove('h');
+  document.getElementById('fBook').value='';
+  document.getElementById('fIns').value='';
+  selW=[];document.querySelectorAll('#wEl .wtag').forEach(t=>t.classList.remove('on'));
+  setSt(3);go('evening');
+}
+
+function updS(){
+  const last=S.lastDate?new Date(S.lastDate):null;
+  const now=new Date();
+  if(last){const d=Math.floor((now-last)/86400000);if(d<=1)S.streak++;else S.streak=1;}else S.streak=1;
+  S.lastDate=now.toISOString();
+}
+
+function addB(role,txt){const a=document.getElementById('chatEl');const d=document.createElement('div');d.className=`bub ${role}`;d.textContent=txt;a.appendChild(d);a.scrollTop=a.scrollHeight;}
+function addT(){const a=document.getElementById('chatEl');const d=document.createElement('div');d.className='bub ai';d.id='tyd';d.innerHTML='<div class="tdots"><div class="td"></div><div class="td"></div><div class="td"></div></div>';a.appendChild(d);a.scrollTop=a.scrollHeight;}
+function rmT(){const e=document.getElementById('tyd');if(e)e.remove();}
+
+async function ai(msgs){
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:'あなたは温かく賢明な読書コーチです。ユーザーが本の学びを日常行動に変えられるようサポートします。簡潔に日本語で返答してください。',messages:msgs})});
+    const d=await r.json();return d.content?.[0]?.text||'エラーが発生しました。';
+  }catch(e){return 'APIエラーが発生しました。';}
+}
+
+function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2800);}
+
+function go(name){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tnav,.bnb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('pg-'+name).classList.add('on');
+  PGS.forEach((n,i)=>{if(n===name){document.querySelectorAll('.tnav')[i]?.classList.add('on');document.getElementById('bn-'+n)?.classList.add('on');}});
+  window.scrollTo({top:0,behavior:'smooth'});ui();
+}
+
+function uB(){const s=new Set();return S.books.filter(b=>{if(s.has(b.title))return false;s.add(b.title);return true;});}
+function x(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function sh2(hex,p){let n=parseInt(hex.slice(1),16);let r=(n>>16)+p,g=((n>>8)&0xff)+p,b=(n&0xff)+p;return'#'+((1<<24)+(Math.min(255,Math.max(0,r))<<16)+(Math.min(255,Math.max(0,g))<<8)+Math.min(255,Math.max(0,b))).toString(16).slice(1);}
+
+ui();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+const _iOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+if(_iOS&&!window.navigator.standalone&&!localStorage.getItem('bgH4')){
+  setTimeout(()=>{
+    const h=document.createElement('div');
+    h.style.cssText='position:fixed;bottom:calc(80px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#2d1508,#1a0a02);color:#e8c060;padding:11px 16px;border-radius:12px;font-size:12px;border:1px solid rgba(200,153,42,.5);box-shadow:0 6px 20px rgba(0,0,0,.6);z-index:998;max-width:270px;text-align:center;line-height:1.65;font-family:sans-serif';
+    h.innerHTML='📖 <strong>ホーム画面に追加</strong>でアプリとして使えます！<br><span style="font-size:10px;opacity:.7">Safari → 共有(□↑) → ホーム画面に追加</span><br><button onclick="this.parentElement.remove()" style="margin-top:6px;background:rgba(200,153,42,.2);border:1px solid rgba(200,153,42,.4);color:#e8c060;padding:4px 14px;border-radius:20px;cursor:pointer;font-size:11px;font-family:sans-serif">わかった</button>';
+    document.body.appendChild(h);
+    localStorage.setItem('bgH4','1');
+  },2500);
+}
+</script>
+</body>
+</html>
